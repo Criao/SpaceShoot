@@ -19,9 +19,15 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private GameManager gameManager;
     [SerializeField] private ParticleSystem engineTrail;
     [SerializeField] private float shieldDuration = 5f;
+    [SerializeField] private float fireRateBoostDuration = 5f;
+    [SerializeField] private float tripleShotDuration = 5f;
 
     private float fireTimer;
     private float shieldTimer;
+    private float fireRateBoostTimer;
+    private float tripleShotTimer;
+    private bool hasFireRateBoost;
+    private bool hasTripleShot;
 
     private void Awake()
     {
@@ -44,18 +50,21 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (!gameManager.isPuse)
+        if (!gameManager.isPause)
         {
             if (mainCamera == null) return;
 
             Vector3 mousePos = mainCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10.0f));
             transform.LookAt(mousePos, Vector3.back);
 
+            // 计算当前射速（如果有射速增强则减半冷却时间）
+            float currentFireCooldown = hasFireRateBoost ? fireCooldown * 0.5f : fireCooldown;
+
             fireTimer -= Time.deltaTime;
-            if (fireTimer <= 0f && Input.GetMouseButtonDown(0))
+            if (fireTimer <= 0f && Input.GetMouseButton(0))
             {
                 FireBullet();
-                fireTimer = fireCooldown;
+                fireTimer = currentFireCooldown;
             }
 
             if (engineTrail != null)
@@ -80,13 +89,35 @@ public class PlayerController : MonoBehaviour
                     shieldTimer = 0f;
                 }
             }
+
+            // 火力增强计时器
+            if (hasFireRateBoost)
+            {
+                fireRateBoostTimer -= Time.deltaTime;
+                if (fireRateBoostTimer <= 0f)
+                {
+                    hasFireRateBoost = false;
+                    fireRateBoostTimer = 0f;
+                }
+            }
+
+            // 三连发计时器
+            if (hasTripleShot)
+            {
+                tripleShotTimer -= Time.deltaTime;
+                if (tripleShotTimer <= 0f)
+                {
+                    hasTripleShot = false;
+                    tripleShotTimer = 0f;
+                }
+            }
         }
 
     }
 
     private void FixedUpdate()
     {
-        if (!gameManager.isPuse)
+        if (!gameManager.isPause)
         {
             if (playerRb == null)
             {
@@ -133,7 +164,44 @@ public class PlayerController : MonoBehaviour
     {
         if (bulletPrefab == null || bulletAnchor == null) return;
 
-        Instantiate(bulletPrefab, bulletAnchor.transform.position, bulletAnchor.transform.rotation);
+        if (hasTripleShot)
+        {
+            // 三连发：中间、左侧、右侧
+            Instantiate(bulletPrefab, bulletAnchor.transform.position, bulletAnchor.transform.rotation);
+
+            // 左侧子弹（向左偏移15度）
+            Quaternion leftRotation = bulletAnchor.transform.rotation * Quaternion.Euler(0, -15, 0);
+            Instantiate(bulletPrefab, bulletAnchor.transform.position, leftRotation);
+
+            // 右侧子弹（向右偏移15度）
+            Quaternion rightRotation = bulletAnchor.transform.rotation * Quaternion.Euler(0, 15, 0);
+            Instantiate(bulletPrefab, bulletAnchor.transform.position, rightRotation);
+        }
+        else
+        {
+            // 普通单发
+            Instantiate(bulletPrefab, bulletAnchor.transform.position, bulletAnchor.transform.rotation);
+        }
+    }
+
+    /// <summary>
+    /// 激活射速增强（双倍射速）
+    /// </summary>
+    public void ActivateFireRateBoost()
+    {
+        hasFireRateBoost = true;
+        fireRateBoostTimer = fireRateBoostDuration;
+        Debug.Log("Fire Rate Boost Activated!");
+    }
+
+    /// <summary>
+    /// 激活三连发
+    /// </summary>
+    public void ActivateTripleShot()
+    {
+        hasTripleShot = true;
+        tripleShotTimer = tripleShotDuration;
+        Debug.Log("Triple Shot Activated!");
     }
     public void ActiveShield()
     {

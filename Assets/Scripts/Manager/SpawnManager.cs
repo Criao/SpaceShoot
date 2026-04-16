@@ -6,7 +6,11 @@ public class SpawnManager : MonoBehaviour
 {
     [SerializeField] private GameObject shieldPowerup;
     [SerializeField] private GameObject LifePowerUP;
+    [SerializeField] private GameObject fireRateBoostPowerup;
+    [SerializeField] private GameObject tripleShotPowerup;
     [SerializeField] private GameObject asteroidPrefab;
+    [SerializeField] private GameObject fastAsteroidPrefab;
+    [SerializeField] private GameObject heavyAsteroidPrefab;
     private float spawnRangex = 9;
     private float spawnRangey = 4;
 
@@ -30,6 +34,8 @@ public class SpawnManager : MonoBehaviour
         gameManager = gmGo != null ? gmGo.GetComponent<GameManager>() : null;
 
         InvokeRepeating("SpawnShieldPowerUp", 3f, 15f);
+        InvokeRepeating("SpawnFireRateBoost", 10f, 20f);
+        InvokeRepeating("SpawnTripleShot", 15f, 25f);
         SpawnAsteroid(wavenumber);
     }
 
@@ -37,6 +43,20 @@ public class SpawnManager : MonoBehaviour
     {
         if (gameManager != null && gameManager.IsGameOver) return;
         Instantiate(shieldPowerup, GeneratePosition(), shieldPowerup.transform.rotation);
+    }
+
+    private void SpawnFireRateBoost()
+    {
+        if (gameManager != null && gameManager.IsGameOver) return;
+        if (fireRateBoostPowerup == null) return;
+        Instantiate(fireRateBoostPowerup, GeneratePosition(), fireRateBoostPowerup.transform.rotation);
+    }
+
+    private void SpawnTripleShot()
+    {
+        if (gameManager != null && gameManager.IsGameOver) return;
+        if (tripleShotPowerup == null) return;
+        Instantiate(tripleShotPowerup, GeneratePosition(), tripleShotPowerup.transform.rotation);
     }
 
     public void SpawnLifePowerUp(Vector3 position)
@@ -63,7 +83,33 @@ public class SpawnManager : MonoBehaviour
         smallAsteroidAlive = 0;
         for (int i = 0; i < asteroidToSpawn; i++)
         {
-            Instantiate(asteroidPrefab, GeneratePosition(), asteroidPrefab.transform.rotation);
+            // 随机选择陨石类型
+            GameObject asteroidToInstantiate = GetRandomAsteroidType();
+            Instantiate(asteroidToInstantiate, GeneratePosition(), asteroidToInstantiate.transform.rotation);
+        }
+    }
+
+    /// <summary>
+    /// 随机选择陨石类型：60%普通，25%快速，15%重型
+    /// </summary>
+    private GameObject GetRandomAsteroidType()
+    {
+        float random = Random.value;
+
+        if (random < 0.6f)
+        {
+            // 60% 概率生成普通陨石
+            return asteroidPrefab;
+        }
+        else if (random < 0.85f)
+        {
+            // 25% 概率生成快速陨石
+            return fastAsteroidPrefab != null ? fastAsteroidPrefab : asteroidPrefab;
+        }
+        else
+        {
+            // 15% 概率生成重型陨石
+            return heavyAsteroidPrefab != null ? heavyAsteroidPrefab : asteroidPrefab;
         }
     }
 

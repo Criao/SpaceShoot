@@ -16,7 +16,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private LivesUIController livesUI;
     [SerializeField] private int maxLives = 5;
     [SerializeField] private TextMeshProUGUI scoreText;
-    public bool isPuse = false;
+    public bool isPause = false;
     private int lives = 3;
     private int score;
     public bool IsGameOver { get; private set; }
@@ -34,14 +34,14 @@ public class GameManager : MonoBehaviour
     public void PuseScreen()
     {
         Time.timeScale = 0;
-        isPuse = true;
+        isPause = true;
         SetAnimatorsUnscaledTime(puseScreen);
         puseScreen.SetActive(true);
     }
     public void UnPuseScreen()
     {
         Time.timeScale = 1;
-        isPuse = false;
+        isPause = false;
         puseScreen.SetActive(false);
     }
 
@@ -79,6 +79,13 @@ public class GameManager : MonoBehaviour
     private void GameOver()
     {
         IsGameOver = true;
+
+        // 游戏结束时确保保存最高分
+        if (DataManager.Instance != null)
+        {
+            DataManager.Instance.UpdateHighScore(score);
+        }
+
         gameOverScreen.SetActive(true);
     }
     public void RetartGame()
@@ -103,8 +110,11 @@ public class GameManager : MonoBehaviour
         {
             scoreText.text = score.ToString();
         }
+
+        // 实时更新最高分
+        if (DataManager.Instance != null)
+        {
+            DataManager.Instance.UpdateHighScore(score);
+        }
     }
-
-
-
 }

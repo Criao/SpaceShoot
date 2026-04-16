@@ -3797,8 +3797,8 @@ GameObject:
   - component: {fileID: 1879723765511342110}
   - component: {fileID: 5670054023858091078}
   - component: {fileID: 5160957277302107801}
-  - component: {fileID: 8129426084096944235}
   - component: {fileID: 1080050737058222284}
+  - component: {fileID: 8129426084096944235}
   m_Layer: 5
   m_Name: HowToPlayDialog
   m_TagString: Untagged
@@ -3891,22 +3891,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &8129426084096944235
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7701600960533790661}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6e2d02913640d4647b67eb8f00c28b1b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  infoPage: {fileID: 7488440459289134130}
-  controlPage: {fileID: 7819922262592619889}
-  infoButton: {fileID: 5765645021278743189}
-  controlButton: {fileID: 649025635444483238}
 --- !u!95 &1080050737058222284
 Animator:
   serializedVersion: 5
@@ -3928,6 +3912,22 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &8129426084096944235
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7701600960533790661}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e2d02913640d4647b67eb8f00c28b1b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  infoPage: {fileID: 7488440459289134130}
+  controlPage: {fileID: 7819922262592619889}
+  infoButton: {fileID: 5765645021278743189}
+  controlButton: {fileID: 649025635444483238}
 --- !u!1 &7819922262592619889
 GameObject:
   m_ObjectHideFlags: 0

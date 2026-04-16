@@ -47,16 +47,6 @@ public class BulletController : MonoBehaviour
         }
     }
 
-    private void OnCollisionEnter(Collision collision)
-    {
-        var other = collision.collider;
-        var asteroid = other.GetComponent<AsterodController>() ?? other.GetComponentInParent<AsterodController>();
-        if (asteroid != null)
-        {
-            asteroid.HandleBulletHit(gameObject);
-        }
-    }
-
     IEnumerator TimeToDie()
     {
         yield return new WaitForSeconds(timeToDie);

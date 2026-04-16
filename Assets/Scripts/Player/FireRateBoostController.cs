@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 拾取逻辑：优先用碰撞；若玩家与能量球都是 Trigger（Unity 常不触发），用距离兜底。
+/// 射速增强道具：双倍射速
 /// </summary>
-public class PowerUpController : MonoBehaviour
+public class FireRateBoostController : MonoBehaviour
 {
     private float timeForDie = 5f;
-    [SerializeField] [Tooltip("与玩家中心距离小于此值即视为吃到（双 Trigger 时的备用）")]
+    [SerializeField] [Tooltip("与玩家中心距离小于此值即视为吃到")]
     private float pickupRadius = 1.25f;
 
     private bool consumed;
@@ -32,12 +32,11 @@ public class PowerUpController : MonoBehaviour
         }
     }
 
-    /// <summary>由 PlayerController.OnTriggerEnter 调用（推荐路径）</summary>
     public void TryConsume(PlayerController player)
     {
         if (consumed || player == null) return;
         consumed = true;
-        player.ActiveShield();
+        player.ActivateFireRateBoost();
         Destroy(gameObject);
     }
 

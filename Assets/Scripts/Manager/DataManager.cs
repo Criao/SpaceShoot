@@ -13,6 +13,7 @@ public class DataManager : MonoBehaviour
 
     public float musicSettingValue;
     public float SFXSettingValue;
+    public int highScore;
 
     private void Awake()
     {
@@ -30,7 +31,8 @@ public class DataManager : MonoBehaviour
     public class SaveData
     {
         public float musicSetting;
-        public float SFXSetting ;
+        public float SFXSetting;
+        public int highScore;
     }
 
     public void SaveMusicSetting()
@@ -38,7 +40,8 @@ public class DataManager : MonoBehaviour
         SaveData data = new SaveData();
         data.musicSetting = musicSettingValue;
         data.SFXSetting = SFXSettingValue;
-        
+        data.highScore = highScore;
+
         var json = JsonConvert.SerializeObject(data);
         File.WriteAllText(Application.persistentDataPath + "/Settings.json", json);
         SettingsChanged?.Invoke();
@@ -53,15 +56,30 @@ public class DataManager : MonoBehaviour
             SaveData data = JsonConvert.DeserializeObject<SaveData>(json);
             musicSettingValue = Mathf.Clamp01(data.musicSetting);
             SFXSettingValue = Mathf.Clamp01(data.SFXSetting);
-            Debug.Log($"DataManager 读取成功，music={musicSettingValue} sfx={SFXSettingValue}");
+            highScore = data.highScore;
+            Debug.Log($"DataManager 读取成功，music={musicSettingValue} sfx={SFXSettingValue} highScore={highScore}");
         }
         else
         {
             Debug.Log("DataManager 没有找到存档，使用默认值");
             musicSettingValue = 0.5f;
             SFXSettingValue = 0.5f;
+            highScore = 0;
         }
-        
+
+    }
+
+    /// <summary>
+    /// 更新最高分，如果当前分数更高则保存
+    /// </summary>
+    public void UpdateHighScore(int currentScore)
+    {
+        if (currentScore > highScore)
+        {
+            highScore = currentScore;
+            SaveMusicSetting();
+            Debug.Log($"新的最高分: {highScore}");
+        }
     }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]

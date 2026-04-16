@@ -5,9 +5,9 @@ using UnityEngine;
 
 public class AsterodController : MonoBehaviour
 {
-    [SerializeField] protected float movementSpeed = 0.01f;
+    [SerializeField] protected float movementSpeed = 1.5f;
     [SerializeField] protected float rotateSpeed  = 3f;
-    [SerializeField] private GameObject littleAsteroidPrefab;
+    [SerializeField] protected GameObject littleAsteroidPrefab;
      private GameManager gameManager;
     private Vector2 randomDirection;
     private Vector3 randomAngle;
@@ -49,14 +49,14 @@ public class AsterodController : MonoBehaviour
             var player = other.GetComponent<PlayerController>() ?? other.GetComponentInParent<PlayerController>();
             bool shieldBlocked = player != null && player.TryConsumeShield();
             SpawnDroppedPowerUp();
-            Destroy(gameObject);
-            if (!shieldBlocked && gameManager != null) gameManager.RemoveLife(1);
             CreateLittleAsteroids();
+            if (!shieldBlocked && gameManager != null) gameManager.RemoveLife(1);
             if (SpawnManager.Instance != null) SpawnManager.Instance.AsteroidDestroyed(isLittle);
+            Destroy(gameObject);
         }
         else if (other.CompareTag("Bullet"))
         {
-            gameManager?.AddScore(10);
+            gameManager?.AddScore(GetScoreValue());
             HandleBulletHit(other.gameObject);
         }
        
@@ -71,10 +71,10 @@ public class AsterodController : MonoBehaviour
 
         SpawnDroppedPowerUp();
         bool isLittle = this is LittleAsteroidController;
-        Destroy(gameObject);
-        if (bullet != null) Destroy(bullet);
         CreateLittleAsteroids();
         if (SpawnManager.Instance != null) SpawnManager.Instance.AsteroidDestroyed(isLittle);
+        if (bullet != null) Destroy(bullet);
+        Destroy(gameObject);
     }
 
     protected virtual void SpawnDroppedPowerUp()
@@ -83,7 +83,7 @@ public class AsterodController : MonoBehaviour
 
     protected virtual void CreateLittleAsteroids()
     {
-        int randomNumber = Random.Range(1,5);
+        int randomNumber = Random.Range(2,5);
         int lifeDropIndex = Random.Range(0, randomNumber);
         for (int i = 0; i < randomNumber; i++)
         {
@@ -101,5 +101,13 @@ public class AsterodController : MonoBehaviour
         {
             SpawnManager.Instance.RegisterSmallAsteroids(randomNumber);
         }
+    }
+
+    /// <summary>
+    /// 获取击毁该陨石的分数值，子类可以重写
+    /// </summary>
+    protected virtual int GetScoreValue()
+    {
+        return 10; // 普通陨石默认10分
     }
 }
