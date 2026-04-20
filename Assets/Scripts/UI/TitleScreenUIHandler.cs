@@ -6,16 +6,25 @@ using UnityEngine.SceneManagement;
 using UnityEditor;
 #endif
 
+/// <summary>
+/// 标题界面UI处理器 - 管理主菜单的按钮功能
+/// </summary>
 public class TitleScreenUIHandler : MonoBehaviour
 {
-    // Start is called before the first frame update
-    [SerializeField] private HowToPlayDialog howToPlayDialog;
+    [SerializeField] private HowToPlayDialog howToPlayDialog; // 游戏说明对话框
+
+    /// <summary>
+    /// 开始新游戏
+    /// </summary>
     public void StartNewScene()
     {
         Debug.Log("按钮被点击了");
         SceneManager.LoadScene(1);
     }
 
+    /// <summary>
+    /// 退出游戏
+    /// </summary>
     public void ExitGame()
     {
 #if UNITY_EDITOR

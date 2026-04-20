@@ -4,14 +4,17 @@ using UnityEngine;
 using TMPro;
 
 /// <summary>
-/// 按Tab键显示/隐藏最高分面板
+/// 最高分显示控制器 - 按Tab键显示/隐藏最高分面板
 /// </summary>
 public class HighScoreDisplay : MonoBehaviour
 {
-    [SerializeField] private GameObject highScorePanel;
-    [SerializeField] private TextMeshProUGUI highScoreText;
-    [SerializeField] private KeyCode toggleKey = KeyCode.Tab;
+    [SerializeField] private GameObject highScorePanel; // 最高分面板
+    [SerializeField] private TextMeshProUGUI highScoreText; // 最高分文本
+    [SerializeField] private KeyCode toggleKey = KeyCode.Tab; // 切换显示的按键
 
+    /// <summary>
+    /// 初始化时隐藏面板
+    /// </summary>
     private void Start()
     {
         // 初始时隐藏面板
@@ -21,6 +24,9 @@ public class HighScoreDisplay : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 每帧检测Tab键输入
+    /// </summary>
     private void Update()
     {
         // 按下Tab键时切换显示并暂停游戏
@@ -37,6 +43,9 @@ public class HighScoreDisplay : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 显示最高分面板并更新文本
+    /// </summary>
     private void ToggleHighScorePanel()
     {
         if (highScorePanel == null) return;
@@ -45,6 +54,9 @@ public class HighScoreDisplay : MonoBehaviour
         UpdateHighScoreText();
     }
 
+    /// <summary>
+    /// 隐藏最高分面板
+    /// </summary>
     private void HideHighScorePanel()
     {
         if (highScorePanel != null)
@@ -53,6 +65,9 @@ public class HighScoreDisplay : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 更新最高分文本显示
+    /// </summary>
     private void UpdateHighScoreText()
     {
         if (highScoreText == null) return;

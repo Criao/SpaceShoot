@@ -2,39 +2,47 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 玩家控制器 - 负责玩家飞船的移动、射击和道具效果管理
+/// </summary>
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private Camera mainCamera;
-    private Rigidbody playerRb;
+    [SerializeField] private Camera mainCamera; // 主摄像机引用
+    private Rigidbody playerRb; // 玩家刚体组件
+
     [Header("Movement")]
-    [SerializeField] private float acceleration = 25f;
-    [SerializeField] private float maxSpeed = 6f;
-    [SerializeField] private float boostMultiplier = 2f;
-    [SerializeField] private float boostedMaxSpeed = 10f;
+    [SerializeField] private float acceleration = 25f; // 加速度
+    [SerializeField] private float maxSpeed = 6f; // 最大速度
+    [SerializeField] private float boostMultiplier = 2f; // 加速倍率
+    [SerializeField] private float boostedMaxSpeed = 10f; // 加速时的最大速度
 
-    [SerializeField] private GameObject bulletPrefab;
-    [SerializeField] private GameObject bulletAnchor;
-    [SerializeField] private float fireCooldown = 0.2f;
-    [SerializeField] private GameObject shield;
-    [SerializeField] private GameManager gameManager;
-    [SerializeField] private ParticleSystem engineTrail;
-    [SerializeField] private float shieldDuration = 5f;
-    [SerializeField] private float fireRateBoostDuration = 5f;
-    [SerializeField] private float tripleShotDuration = 5f;
+    [SerializeField] private GameObject bulletPrefab; // 子弹预制体
+    [SerializeField] private GameObject bulletAnchor; // 子弹发射点
+    [SerializeField] private float fireCooldown = 0.2f; // 射击冷却时间
+    [SerializeField] private GameObject shield; // 护盾对象
+    [SerializeField] private GameManager gameManager; // 游戏管理器引用
+    [SerializeField] private ParticleSystem engineTrail; // 引擎尾焰粒子效果
+    [SerializeField] private float shieldDuration = 5f; // 护盾持续时间
+    [SerializeField] private float fireRateBoostDuration = 5f; // 射速增强持续时间
+    [SerializeField] private float tripleShotDuration = 5f; // 三连发持续时间
 
-    private float fireTimer;
-    private float shieldTimer;
-    private float fireRateBoostTimer;
-    private float tripleShotTimer;
-    private bool hasFireRateBoost;
-    private bool hasTripleShot;
+    private float fireTimer; // 射击计时器
+    private float shieldTimer; // 护盾计时器
+    private float fireRateBoostTimer; // 射速增强计时器
+    private float tripleShotTimer; // 三连发计时器
+    private bool hasFireRateBoost; // 是否拥有射速增强
+    private bool hasTripleShot; // 是否拥有三连发
 
+    /// <summary>
+    /// 初始化组件引用
+    /// </summary>
     private void Awake()
     {
         // 防止 Inspector 忘记拖引用导致 FixedUpdate 报错、整段移动逻辑不执行
         if (mainCamera == null) mainCamera = Camera.main;
         if (playerRb == null) playerRb = GetComponent<Rigidbody>();
 
+        // 设置引擎尾焰粒子循环播放
         if (engineTrail != null)
         {
             var main = engineTrail.main;
@@ -42,24 +50,32 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 游戏开始时的初始化
+    /// </summary>
     private void Start()
     {
         // 兜底（Awake 已赋值时这里不重复）
         if (playerRb == null) playerRb = GetComponent<Rigidbody>();
     }
 
+    /// <summary>
+    /// 每帧更新 - 处理输入、射击、粒子效果和道具计时
+    /// </summary>
     private void Update()
     {
         if (!gameManager.isPause)
         {
             if (mainCamera == null) return;
 
+            // 让飞船朝向鼠标位置
             Vector3 mousePos = mainCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10.0f));
             transform.LookAt(mousePos, Vector3.back);
 
             // 计算当前射速（如果有射速增强则减半冷却时间）
             float currentFireCooldown = hasFireRateBoost ? fireCooldown * 0.5f : fireCooldown;
 
+            // 射击逻辑
             fireTimer -= Time.deltaTime;
             if (fireTimer <= 0f && Input.GetMouseButton(0))
             {
@@ -67,6 +83,7 @@ public class PlayerController : MonoBehaviour
                 fireTimer = currentFireCooldown;
             }
 
+            // 引擎尾焰粒子效果控制
             if (engineTrail != null)
             {
                 if (Input.GetKey(KeyCode.W))
@@ -80,6 +97,7 @@ public class PlayerController : MonoBehaviour
                 }
             }
 
+            // 护盾计时器
             if (shield != null && shield.activeSelf)
             {
                 shieldTimer -= Time.deltaTime;
@@ -115,6 +133,9 @@ public class PlayerController : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// 固定时间步更新 - 处理物理移动
+    /// </summary>
     private void FixedUpdate()
     {
         if (!gameManager.isPause)
@@ -130,6 +151,7 @@ public class PlayerController : MonoBehaviour
                 return;
             }
 
+            // 获取输入
             float sideInput = Input.GetAxis("Horizontal");
             float forwardInput = Input.GetAxis("Vertical");
 
@@ -138,6 +160,7 @@ public class PlayerController : MonoBehaviour
             float currentAcceleration = acceleration * (boosting ? boostMultiplier : 1f);
             float currentMaxSpeed = boosting ? boostedMaxSpeed : maxSpeed;
 
+            // 施加加速度
             Vector3 accelWorld = new Vector3(sideInput, forwardInput, 0f) * currentAcceleration;
             playerRb.AddForce(accelWorld, ForceMode.Acceleration);
 
@@ -160,6 +183,9 @@ public class PlayerController : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// 发射子弹 - 根据是否有三连发道具决定发射模式
+    /// </summary>
     private void FireBullet()
     {
         if (bulletPrefab == null || bulletAnchor == null) return;
@@ -203,6 +229,9 @@ public class PlayerController : MonoBehaviour
         tripleShotTimer = tripleShotDuration;
         Debug.Log("Triple Shot Activated!");
     }
+    /// <summary>
+    /// 激活护盾效果
+    /// </summary>
     public void ActiveShield()
     {
         if (shield == null)
@@ -214,6 +243,10 @@ public class PlayerController : MonoBehaviour
         shieldTimer = shieldDuration;
     }
 
+    /// <summary>
+    /// 尝试消耗护盾（当受到伤害时调用）
+    /// </summary>
+    /// <returns>如果护盾存在并被消耗返回true，否则返回false</returns>
     public bool TryConsumeShield()
     {
         if (shield == null || !shield.activeSelf) return false;

@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// 音频管理器 - 管理游戏音乐音量，响应设置变化
+/// </summary>
 public class AudioManager : MonoBehaviour
 {
-    // 缓存当前 AudioSource 组件，避免每次重复查找
-    private AudioSource audioSource;
+    private AudioSource audioSource; // 缓存当前 AudioSource 组件，避免每次重复查找
 
-    // Awake 在对象实例化时调用，优先于 Start
+    /// <summary>
+    /// 对象实例化时调用，优先于 Start
+    /// </summary>
     private void Awake()
     {
         // 获取挂载的 AudioSource 组件
@@ -18,7 +22,9 @@ public class AudioManager : MonoBehaviour
         ApplyVolume();
     }
 
-    // OnEnable 在 GameObject 激活时调用
+    /// <summary>
+    /// GameObject 激活时调用
+    /// </summary>
     private void OnEnable()
     {
         // 订阅 DataManager 的设置变化回调
@@ -28,14 +34,18 @@ public class AudioManager : MonoBehaviour
         ApplyVolume();
     }
 
-    // OnDisable 在 GameObject 禁用或销毁时调用
+    /// <summary>
+    /// GameObject 禁用或销毁时调用
+    /// </summary>
     private void OnDisable()
     {
         // 取消订阅，避免内存泄漏或空引用
         DataManager.SettingsChanged -= ApplyVolume;
     }
 
-    // 统一音量应用逻辑
+    /// <summary>
+    /// 统一音量应用逻辑
+    /// </summary>
     private void ApplyVolume()
     {
         // 如果 audioSource 丢失，尝试重新获取

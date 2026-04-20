@@ -3,17 +3,23 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 快速陨石：速度快，分裂少，给更多分数
+/// 快速陨石控制器 - 速度快，分裂少，给更多分数
 /// </summary>
 public class FastAsteroidController : AsterodController
 {
+    /// <summary>
+    /// 初始化快速陨石的速度参数
+    /// </summary>
     protected override void Start()
     {
-        movementSpeed = 3.0f;
-        rotateSpeed = 8f;
+        movementSpeed = 3.0f; // 较快的移动速度
+        rotateSpeed = 8f; // 较快的旋转速度
         base.Start();
     }
 
+    /// <summary>
+    /// 创建分裂的小陨石（数量较少）
+    /// </summary>
     protected override void CreateLittleAsteroids()
     {
         int randomNumber = Random.Range(1, 3); // 分裂1-2个小陨石
@@ -38,6 +44,9 @@ public class FastAsteroidController : AsterodController
         }
     }
 
+    /// <summary>
+    /// 获取击毁快速陨石的分数值
+    /// </summary>
     protected override int GetScoreValue()
     {
         return 20; // 快速陨石给更多分数

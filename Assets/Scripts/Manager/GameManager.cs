@@ -7,19 +7,26 @@ using UnityEngine.SceneManagement;
 using UnityEditor;
 #endif
 
+/// <summary>
+/// 游戏管理器 - 管理游戏状态、生命值、分数和暂停功能
+/// </summary>
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private GameObject puseScreen;
-    [SerializeField] private GameObject gameOverScreen;
-    [SerializeField] private GameObject player;
+    [SerializeField] private GameObject puseScreen; // 暂停界面
+    [SerializeField] private GameObject gameOverScreen; // 游戏结束界面
+    [SerializeField] private GameObject player; // 玩家对象
 
-    [SerializeField] private LivesUIController livesUI;
-    [SerializeField] private int maxLives = 5;
-    [SerializeField] private TextMeshProUGUI scoreText;
-    public bool isPause = false;
-    private int lives = 3;
-    private int score;
-    public bool IsGameOver { get; private set; }
+    [SerializeField] private LivesUIController livesUI; // 生命值UI控制器
+    [SerializeField] private int maxLives = 5; // 最大生命值
+    [SerializeField] private TextMeshProUGUI scoreText; // 分数文本
+    public bool isPause = false; // 是否暂停
+    private int lives = 3; // 当前生命值
+    private int score; // 当前分数
+    public bool IsGameOver { get; private set; } // 游戏是否结束
+
+    /// <summary>
+    /// 游戏开始时初始化
+    /// </summary>
     private void Start()
     {
         Time.timeScale = 1;
@@ -31,6 +38,10 @@ public class GameManager : MonoBehaviour
             scoreText.text = score.ToString();
         }
     }
+
+    /// <summary>
+    /// 显示暂停界面
+    /// </summary>
     public void PuseScreen()
     {
         Time.timeScale = 0;
@@ -38,6 +49,10 @@ public class GameManager : MonoBehaviour
         SetAnimatorsUnscaledTime(puseScreen);
         puseScreen.SetActive(true);
     }
+
+    /// <summary>
+    /// 取消暂停，恢复游戏
+    /// </summary>
     public void UnPuseScreen()
     {
         Time.timeScale = 1;
@@ -45,6 +60,9 @@ public class GameManager : MonoBehaviour
         puseScreen.SetActive(false);
     }
 
+    /// <summary>
+    /// 设置动画器使用非缩放时间（用于暂停时播放动画）
+    /// </summary>
     private void SetAnimatorsUnscaledTime(GameObject root)
     {
         if (root == null) return;
@@ -55,6 +73,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 减少生命值
+    /// </summary>
     public void RemoveLife(int livesToRemove)
     {
         if (IsGameOver) return;
@@ -68,6 +89,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 增加生命值
+    /// </summary>
     public void AddLife(int livesToAdd)
     {
         if (IsGameOver) return;
@@ -76,6 +100,9 @@ public class GameManager : MonoBehaviour
         livesUI.UpdateLives(lives);
     }
 
+    /// <summary>
+    /// 游戏结束处理
+    /// </summary>
     private void GameOver()
     {
         IsGameOver = true;
@@ -88,11 +115,19 @@ public class GameManager : MonoBehaviour
 
         gameOverScreen.SetActive(true);
     }
+
+    /// <summary>
+    /// 重新开始游戏
+    /// </summary>
     public void RetartGame()
     {
         Time.timeScale = 1;
         SceneManager.LoadScene(1);
     }
+
+    /// <summary>
+    /// 退出游戏
+    /// </summary>
     public void ExitGame()
     {
         Time.timeScale = 1;
@@ -102,6 +137,10 @@ public class GameManager : MonoBehaviour
         Application.Quit();
 #endif
     }
+
+    /// <summary>
+    /// 增加分数
+    /// </summary>
     public void AddScore(int scoreToAdd)
     {
         if (IsGameOver) return;
