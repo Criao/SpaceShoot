@@ -36,8 +36,8 @@ public class BoundssCheck : MonoBehaviour
         if (autoDetectByTag)
         {
             // Player：夹紧边界；Asteroid（包含小陨石）：穿越边界从另一侧出现
-            if (CompareTag(“Player”)) mode = BoundsMode.Clamp;
-            else if (CompareTag(“Asteroid”)) mode = BoundsMode.Wrap;
+            if (CompareTag("Player")) mode = BoundsMode.Clamp;
+            else if (CompareTag("Asteroid")) mode = BoundsMode.Wrap;
             else mode = BoundsMode.Clamp;
         }
     }
