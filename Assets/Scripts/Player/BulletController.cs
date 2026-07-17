@@ -9,6 +9,7 @@ public class BulletController : MonoBehaviour
 {
     private float speed = 10f; // 子弹速度
     private float timeToDie = 2f; // 子弹存活时间
+    private Vector3 moveDirection = Vector3.forward;
 
     /// <summary>
     /// 初始化时自动添加必要的碰撞组件
@@ -45,7 +46,15 @@ public class BulletController : MonoBehaviour
     /// </summary>
     void Update()
     {
-        transform.Translate(Vector3.forward * speed * Time.deltaTime);
+        transform.position += moveDirection * speed * Time.deltaTime;
+    }
+
+    public void SetMoveDirection(Vector3 direction)
+    {
+        if (direction.sqrMagnitude <= Mathf.Epsilon) return;
+
+        moveDirection = direction.normalized;
+        transform.rotation = Quaternion.LookRotation(moveDirection, Vector3.back);
     }
 
     /// <summary>

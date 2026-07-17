@@ -24,14 +24,31 @@ public class GameManager : MonoBehaviour
     private int score; // 当前分数
     public bool IsGameOver { get; private set; } // 游戏是否结束
 
+    private void ResolveSceneReferences()
+    {
+        if (player == null)
+        {
+            player = GameObject.FindGameObjectWithTag("Player");
+        }
+
+        if (livesUI == null)
+        {
+            livesUI = FindObjectOfType<LivesUIController>();
+        }
+    }
+
     /// <summary>
     /// 游戏开始时初始化
     /// </summary>
     private void Start()
     {
+        ResolveSceneReferences();
         Time.timeScale = 1;
         IsGameOver = false;
-        livesUI.UpdateLives(lives);
+        if (livesUI != null)
+        {
+            livesUI.UpdateLives(lives);
+        }
         score = 0;
         if (scoreText != null)
         {
@@ -46,8 +63,11 @@ public class GameManager : MonoBehaviour
     {
         Time.timeScale = 0;
         isPause = true;
-        SetAnimatorsUnscaledTime(puseScreen);
-        puseScreen.SetActive(true);
+        if (puseScreen != null)
+        {
+            SetAnimatorsUnscaledTime(puseScreen);
+            puseScreen.SetActive(true);
+        }
     }
 
     /// <summary>
@@ -57,7 +77,10 @@ public class GameManager : MonoBehaviour
     {
         Time.timeScale = 1;
         isPause = false;
-        puseScreen.SetActive(false);
+        if (puseScreen != null)
+        {
+            puseScreen.SetActive(false);
+        }
     }
 
     /// <summary>
@@ -81,11 +104,17 @@ public class GameManager : MonoBehaviour
         if (IsGameOver) return;
 
         lives = Mathf.Max(0, lives - livesToRemove);
-        livesUI.UpdateLives(lives);
+        if (livesUI != null)
+        {
+            livesUI.UpdateLives(lives);
+        }
         if (lives <= 0)
         {
             GameOver();
-            player.SetActive(false);
+            if (player != null)
+            {
+                player.SetActive(false);
+            }
         }
     }
 
@@ -97,7 +126,10 @@ public class GameManager : MonoBehaviour
         if (IsGameOver) return;
 
         lives = Mathf.Clamp(lives + livesToAdd, 0, maxLives);
-        livesUI.UpdateLives(lives);
+        if (livesUI != null)
+        {
+            livesUI.UpdateLives(lives);
+        }
     }
 
     /// <summary>
@@ -113,7 +145,10 @@ public class GameManager : MonoBehaviour
             DataManager.Instance.UpdateHighScore(score);
         }
 
-        gameOverScreen.SetActive(true);
+        if (gameOverScreen != null)
+        {
+            gameOverScreen.SetActive(true);
+        }
     }
 
     /// <summary>

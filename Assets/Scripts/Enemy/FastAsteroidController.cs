@@ -22,6 +22,8 @@ public class FastAsteroidController : AsterodController
     /// </summary>
     protected override void CreateLittleAsteroids()
     {
+        if (littleAsteroidPrefab == null) return;
+
         int randomNumber = Random.Range(1, 3); // 分裂1-2个小陨石
         int lifeDropIndex = Random.Range(0, randomNumber);
 

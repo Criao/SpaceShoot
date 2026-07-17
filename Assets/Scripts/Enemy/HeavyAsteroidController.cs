@@ -22,6 +22,8 @@ public class HeavyAsteroidController : AsterodController
     /// </summary>
     protected override void CreateLittleAsteroids()
     {
+        if (littleAsteroidPrefab == null) return;
+
         int randomNumber = Random.Range(4, 7); // 分裂4-6个小陨石
         int lifeDropIndex = Random.Range(0, randomNumber);
 

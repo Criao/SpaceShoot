@@ -18,7 +18,10 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private GameObject bulletPrefab; // 子弹预制体
     [SerializeField] private GameObject bulletAnchor; // 子弹发射点
-    [SerializeField] private float fireCooldown = 0.2f; // 射击冷却时间
+    private const float MinFireCooldown = 0.5f;
+    private const float TripleShotSpreadAngle = 15f;
+
+    [SerializeField, Min(MinFireCooldown)] private float fireCooldown = MinFireCooldown; // 射击冷却时间
     [SerializeField] private GameObject shield; // 护盾对象
     [SerializeField] private GameManager gameManager; // 游戏管理器引用
     [SerializeField] private ParticleSystem engineTrail; // 引擎尾焰粒子效果
@@ -33,14 +36,38 @@ public class PlayerController : MonoBehaviour
     private bool hasFireRateBoost; // 是否拥有射速增强
     private bool hasTripleShot; // 是否拥有三连发
 
+    private bool IsPaused()
+    {
+        return gameManager != null && gameManager.isPause;
+    }
+
+    private void ResolveRuntimeReferences()
+    {
+        if (mainCamera == null) mainCamera = Camera.main;
+        if (playerRb == null) playerRb = GetComponent<Rigidbody>();
+
+        if (gameManager == null)
+        {
+            var gameManagerObject = GameObject.FindGameObjectWithTag("GameController");
+            if (gameManagerObject != null)
+            {
+                gameManager = gameManagerObject.GetComponent<GameManager>();
+            }
+
+            if (gameManager == null)
+            {
+                gameManager = FindObjectOfType<GameManager>();
+            }
+        }
+    }
+
     /// <summary>
     /// 初始化组件引用
     /// </summary>
     private void Awake()
     {
         // 防止 Inspector 忘记拖引用导致 FixedUpdate 报错、整段移动逻辑不执行
-        if (mainCamera == null) mainCamera = Camera.main;
-        if (playerRb == null) playerRb = GetComponent<Rigidbody>();
+        ResolveRuntimeReferences();
 
         // 设置引擎尾焰粒子循环播放
         if (engineTrail != null)
@@ -56,7 +83,7 @@ public class PlayerController : MonoBehaviour
     private void Start()
     {
         // 兜底（Awake 已赋值时这里不重复）
-        if (playerRb == null) playerRb = GetComponent<Rigidbody>();
+        ResolveRuntimeReferences();
     }
 
     /// <summary>
@@ -64,7 +91,8 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void Update()
     {
-        if (!gameManager.isPause)
+        ResolveRuntimeReferences();
+        if (!IsPaused())
         {
             if (mainCamera == null) return;
 
@@ -73,7 +101,7 @@ public class PlayerController : MonoBehaviour
             transform.LookAt(mousePos, Vector3.back);
 
             // 计算当前射速（如果有射速增强则减半冷却时间）
-            float currentFireCooldown = hasFireRateBoost ? fireCooldown * 0.5f : fireCooldown;
+            float currentFireCooldown = Mathf.Max(MinFireCooldown, hasFireRateBoost ? fireCooldown * 0.5f : fireCooldown);
 
             // 射击逻辑
             fireTimer -= Time.deltaTime;
@@ -138,7 +166,8 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void FixedUpdate()
     {
-        if (!gameManager.isPause)
+        ResolveRuntimeReferences();
+        if (!IsPaused())
         {
             if (playerRb == null)
             {
@@ -186,27 +215,62 @@ public class PlayerController : MonoBehaviour
     /// <summary>
     /// 发射子弹 - 根据是否有三连发道具决定发射模式
     /// </summary>
+    private Vector3 GetBulletDirection()
+    {
+        if (mainCamera == null || bulletAnchor == null)
+        {
+            return transform.forward;
+        }
+
+        float depth = mainCamera.WorldToScreenPoint(bulletAnchor.transform.position).z;
+        Vector3 mouseWorldPosition = mainCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, depth));
+        Vector3 direction = mouseWorldPosition - bulletAnchor.transform.position;
+        direction.z = 0f;
+
+        if (direction.sqrMagnitude > Mathf.Epsilon)
+        {
+            return direction.normalized;
+        }
+
+        direction = bulletAnchor.transform.forward;
+        direction.z = 0f;
+        return direction.sqrMagnitude > Mathf.Epsilon ? direction.normalized : transform.forward;
+    }
+
+    private void SpawnBullet(Vector3 direction)
+    {
+        direction = direction.normalized;
+        Quaternion rotation = Quaternion.LookRotation(direction, Vector3.back);
+        GameObject bullet = Instantiate(bulletPrefab, bulletAnchor.transform.position, rotation);
+        var bulletController = bullet.GetComponent<BulletController>() ?? bullet.GetComponentInChildren<BulletController>();
+        if (bulletController != null)
+        {
+            bulletController.SetMoveDirection(direction);
+        }
+    }
+
     private void FireBullet()
     {
         if (bulletPrefab == null || bulletAnchor == null) return;
 
+        Vector3 bulletDirection = GetBulletDirection();
         if (hasTripleShot)
         {
             // 三连发：中间、左侧、右侧
-            Instantiate(bulletPrefab, bulletAnchor.transform.position, bulletAnchor.transform.rotation);
+            SpawnBullet(bulletDirection);
 
             // 左侧子弹（向左偏移15度）
-            Quaternion leftRotation = bulletAnchor.transform.rotation * Quaternion.Euler(0, -15, 0);
-            Instantiate(bulletPrefab, bulletAnchor.transform.position, leftRotation);
+            Vector3 leftDirection = Quaternion.AngleAxis(-TripleShotSpreadAngle, Vector3.forward) * bulletDirection;
+            SpawnBullet(leftDirection);
 
             // 右侧子弹（向右偏移15度）
-            Quaternion rightRotation = bulletAnchor.transform.rotation * Quaternion.Euler(0, 15, 0);
-            Instantiate(bulletPrefab, bulletAnchor.transform.position, rightRotation);
+            Vector3 rightDirection = Quaternion.AngleAxis(TripleShotSpreadAngle, Vector3.forward) * bulletDirection;
+            SpawnBullet(rightDirection);
         }
         else
         {
             // 普通单发
-            Instantiate(bulletPrefab, bulletAnchor.transform.position, bulletAnchor.transform.rotation);
+            SpawnBullet(bulletDirection);
         }
     }
 

@@ -54,6 +54,7 @@ public class SpawnManager : MonoBehaviour
     private void SpawnShieldPowerUp()
     {
         if (gameManager != null && gameManager.IsGameOver) return;
+        if (shieldPowerup == null) return;
         Instantiate(shieldPowerup, GeneratePosition(), shieldPowerup.transform.rotation);
     }
 
@@ -111,6 +112,7 @@ public class SpawnManager : MonoBehaviour
         {
             // 随机选择陨石类型
             GameObject asteroidToInstantiate = GetRandomAsteroidType();
+            if (asteroidToInstantiate == null) continue;
             Instantiate(asteroidToInstantiate, GeneratePosition(), asteroidToInstantiate.transform.rotation);
         }
     }

@@ -117,6 +117,8 @@ public class AsterodController : MonoBehaviour
     /// </summary>
     protected virtual void CreateLittleAsteroids()
     {
+        if (littleAsteroidPrefab == null) return;
+
         int randomNumber = Random.Range(2,5);
         int lifeDropIndex = Random.Range(0, randomNumber);
         for (int i = 0; i < randomNumber; i++)
